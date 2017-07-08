@@ -1,8 +1,9 @@
 <!doctype html>
+<meta charset=utf-8>
 <title><?=PHP_SAPI,' ',PHP_VERSION?></title>
 
 <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Fira+Sans|Source+Sans+Pro" rel="stylesheet">
-<style {{{>
+<style>
 html {
  font-size: 100%;
 }
@@ -45,80 +46,50 @@ color: #ae508d;
 dfn {
   font-style: normal;
 }
-.server dfn:after,
-ol.ini dfn:after,
-ol.const dfn:after {
-  content: ' = ';
-  white-space: pre;
-  color: #bbb;
+.args:empty:before{
+  content: 'void';
+  color: #737373;
 }
-ol.func li.deprecated:after {
-  content: ')  DEPRECATED !';
+.args .type{
+  color: #693;
 }
-ol.func mark:before {
-  content: ', ';
-  color: #bbb;
-}
-ol.func mark:first-child:before {
-  content: '';
-}
-ol.func .type:not(:empty){
-  color: green;
-  margin-right: 1em;
-}
-ol.func q mark{
+.args .optional{ /* optional */
   color: blue;
-  //opacity: .5;
 }
-ol.func mark { /* required */
-  color: red;
+.args .required { /* required */
+  color: #369;
+  font-weight: normal;
 }
-mark,dfn,var {
-  display: inline-block;
-}
-mark{
-  background-color: transparent;
-}
-ol.func q:before {
-  content: ' [, ';
+
+.args .optional:before {
+  content: ' [';
   color: #bbb;
 }
-ol.func q:first-child:before {
+.args .optional:first-child:before {
   content: '[';
   color: #bbb;
 }
-ol.func q:after {
+.args .optional:after {
   content: ']';
   color: #bbb;
 }
-li.bool span,
-li.null span {
+
+.boolean,
+.null {
   color: red;
 }
-li.str span {
+.string {
   color: blue;
 }
-li.int span,
-li.double span {
+.integer,
+.double {
   color: red;
 }
-ol.func .args:before {
-  content: ' (';
-  color: gray;
+
+.syn {
+  color: #793862;
 }
-ol.func span:after {
-  content: ')';
-  color: gray;
-}
-ol.func li:before {
-  content: 'function ';
-}
-ol.cls li:before {
-  content: 'class ';
-}
-ol.cls li[data-before]:before {
-  content: attr(data-before) ' class ';
-}
+
 ol.const li:before {
   content: 'const ';
 }
@@ -130,12 +101,8 @@ li:before {
   color: #bbb;
 }
 .server dfn:after {
-  content: "'] = ";
+  content: "'] ";
   color: #bbb;
-}
-ol.cls li:after {
-  color: #bbb;
-  content: ' { ... }';
 }
 output:before {
   content: ' // return ' attr(class) ': ';
@@ -147,18 +114,7 @@ output {
 *:after {
   cursor: default;
 }
-.extends:before {
-  content: ' extends ';
-  color: gray;
-}
-.implements:before {
-  content: ' implements ';
-  color: gray;
-}
-.implements a:not(:first-child):before {
-  content: ', ';
-}
-mark:before {
+u:before {
   color: gray;
 }
 q {
@@ -176,51 +132,52 @@ h2 {
   background-color: #8892bf;
   z-index:99;
 }
-</style }}}>
+</style>
 
 <header>
 <h1><?=PHP_SAPI,' ',PHP_VERSION?></h1>
 </header>
 
 <?php
+
 function xxx($arr){ // {{{
   foreach($arr as $k=>$v){
-    switch(gettype($v)){
+    $t = gettype($v);
+    switch($t){
     case 'integer':
-      echo '<li class=int>';
-      echo "<dfn>$k</dfn>";
-      echo '<span>';
-      echo $v;
-      break;
     case 'double':
-      echo '<li class=double>';
-      echo "<dfn>$k</dfn>";
-      echo '<span>';
-      echo is_infinite($v)||is_nan($v)?"<var>$v":$v;
+      echo "<li><dfn>$k</dfn> = <var class=$t>$v</var></li>";
       break;
     case 'boolean':
-      echo '<li class=bool>';
-      echo "<dfn>$k</dfn>";
-      echo '<span>';
-      echo '<var>',$v?'true':'false';
+      $v = $v?'true':'false';
+      echo "<li><dfn>$k</dfn> = <var class=$t>$v</var></li>";
       break;
     case 'NULL':
-      echo '<li class=null>';
-      echo "<dfn>$k</dfn>";
-      echo '<span>';
-      echo '<var>null';
+      echo "<li><dfn>$k</dfn> = <var class=$t>null</var></li>";
       break;
     case 'string':
-      echo '<li class=str>';
-      echo "<dfn>$k</dfn>";
-      echo '<span>';
-      echo '<q>';
-      echo $v===PHP_EOL?str_replace(["\r","\n"],['\r','\n'],PHP_EOL):$v;
+      $v=str_replace(["\r","\n"],['\r','\n'],$v);
+      echo "<li><dfn>$k</dfn> = \"<var class=$t>$v</var>\"</li>";
       break;
     case 'object':
-      switch(get_class($v)){
+      $cls = get_class($v);
+      switch($cls){
       case 'ReflectionFunction':
-$demo = [
+        echo '<li>';
+        echo '<a href=//php.net/',str_replace('_','-',$k),"><dfn>$k</dfn></a>";
+        echo ' ( <span class=args>';
+        foreach($v->getParameters() as $key=>$arg){
+          $t = $arg->getType();
+          $n = ['&'][!$key].'$'.$arg->getName();
+          if($key) echo ', ';
+          if($t) echo "<a href=//php.net/$t class=type>$t</a> ";
+          echo $arg->isOptional()?"<dfn class=optional>$n":"<strong class=required>$n</strong>";
+        }
+        echo '</span> )';
+
+        if($v->isDeprecated()) echo ' <strong>DEPRECATED</strong>';
+
+        if(in_array($k,[
   'zend_version',
   'time',
   'timezone_version_get',
@@ -260,52 +217,36 @@ $demo = [
   'unixtojd',
   'imagetypes',
   'json_last_error_msg',
-];
-        echo '<li class="obj',$v->isDeprecated()?' deprecated':null,'">';
-        echo '<a href=//php.net/',str_replace('_','-',$k),"><dfn>$k</dfn></a>";
-        echo '<span class=args>';
-        foreach($v->getParameters() as $arg){
-          echo $arg->isOptional()?'<q>':null;
-          echo '<mark>';
-          echo '<i class=type>',$arg->getType(),'</i>';
-          echo $arg->isPassedByReference()?'&amp;':null;
-          echo '$',$arg->getName();
-          echo '</mark>';
-        }
-        echo '</span>';
-
-        if(in_array($k,$demo)){
-          //TODO: 返回类型用不同颜色表示
+])){
           $tmp1 = $k();
           $tmp2 = gettype($tmp1);
-          echo "<output class=$tmp2>$tmp1</output>";
+
+          echo is_string($tmp1)?"<output>\"$tmp1\"</output>":"<output>$tmp1</output>";
         }
         break;
       case 'ReflectionClass':
-        echo '<li class=',gettype($v),' data-before="',join(Reflection::getModifierNames($v->getModifiers())),'">';
+        echo "<li class=$t>";
+        echo join(Reflection::getModifierNames($v->getModifiers()),' '), ' <span class=syn>class</span> ';
         echo '<a href=//php.net/class.',$k,"><dfn>$k</dfn></a>";
-        if($v->getParentClass()){
-          echo '<span class=extends><mark><a href=//php.net/class.',get_class($v->getParentClass()),'>',get_class($v->getParentClass()),'</a></mark>';
+
+        $p = $v->getParentClass();
+        if($p){
+          echo " <span class=syn>extends</span> <a href=//php.net/class.{$p->name}>{$p->name}</a></a>";
         }
-        if($v->getInterfaceNames()){
-          echo '<span class=implements>';
-          foreach($v->getInterfaceNames() as $i){
-            echo "<a href=//php.net/class.$i>$i</a>";
-          }
+
+        $i = $v->getInterfaceNames();
+        if($i){
+          echo ' <span class=syn>implements</span> ';
+          echo join(array_map(function($v){return "<a href=//php.net/class.$v>$v</a>";}, $i),', ');
         }
+        echo ' <small>{ ... }</small>';
         break;
       default:
-        echo '<li class=',gettype($v),'>';
-        echo "<dfn>$k</dfn>";
-        echo '<span>';
-        echo '{}', get_class($v);
+        echo "<li class=$t><dfn>$k</dfn>{} $cls</li>";
       }
       break;
     default:
-      echo '<li class=',gettype($v),'>';
-      echo "<dfn>$k</dfn>";
-      echo '<span>';
-      echo $v, 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+      echo "<li class=\"$t\"><dfn>$k</dfn>$v xxxxxxxxxxxxxxxxx</li>";
     }
 
   }
@@ -356,7 +297,7 @@ foreach(get_loaded_extensions() as $ext){
   $a = $obj->getFunctions();
   if($a){
     echo '<h3>Functions</h3>';
-    echo '<ol class=func>';
+    echo '<ol>';
     xxx($a);
     echo '</ol>';
   }
