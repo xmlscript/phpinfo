@@ -1,11 +1,8 @@
+#! /usr/bin/php
 <?php
-$debug = $_SERVER['SCRIPT_FILENAME']!==__FILE__;
-if($debug){
-  ob_clean();
-}
-function ok(stdClass $cls, Array $arr=[]):string{
-  return 'haha';
-}
+ini_get('output_buffering') and ob_clean();
+
+if(PHP_SAPI==='cli') die('usage: `php -S 127.0.0.1` and `lynx 127.0.0.1` or php --r[fcezi]'.PHP_EOL);
 
 function xxx($arr){ // {{{
   foreach($arr as $k=>$v){
@@ -34,8 +31,8 @@ function xxx($arr){ // {{{
         echo '<a href=//php.net/',str_replace('_','-',$v->name),"><dfn>{$v->name}</dfn></a>";
         echo ' ( <span class=args>';
         foreach($v->getParameters() as $key=>$arg){
-          $c = [','][!$key];
-          $n = ['&'][!$key].'$'.$arg->getName();
+          $c = [',',null][!$key];
+          $n = ['&',null][!$key].'$'.$arg->getName();
           $t = $arg->getType();
           if($t) $t = "<a href=//php.net/$t class=type>$t</a> ";
           echo $arg->isOptional()?"<span class=optional> [$c <dfn>$t</dfn> <var>$n</var> ":"<strong class=required>$c <dfn>$t</dfn> <var>$n</var></strong>";
@@ -248,7 +245,7 @@ h2 {
 </header>
 
 <?php
-if($debug){
+if($_SERVER['SCRIPT_FILENAME']!==__FILE__){
 
   echo '<p>', __FILE__;
 
