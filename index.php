@@ -4,9 +4,6 @@
 
 <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Fira+Sans|Source+Sans+Pro" rel="stylesheet">
 <style>
-html {
- font-size: 100%;
-}
 body {
 line-height: 1.5;
 font-family: "Fira Sans", "Source Sans Pro", Helvetica, Arial, sans-serif;
@@ -46,6 +43,10 @@ color: #ae508d;
 dfn {
   font-style: normal;
 }
+
+.args {
+  color: #aaa;
+}
 .args:empty:before{
   content: 'void';
   color: #737373;
@@ -53,25 +54,12 @@ dfn {
 .args .type{
   color: #693;
 }
-.args .optional{ /* optional */
+.args .optional var{
   color: blue;
 }
-.args .required { /* required */
+.args .required {
   color: #369;
   font-weight: normal;
-}
-
-.args .optional:before {
-  content: ' [';
-  color: #bbb;
-}
-.args .optional:first-child:before {
-  content: '[';
-  color: #bbb;
-}
-.args .optional:after {
-  content: ']';
-  color: #bbb;
 }
 
 .boolean,
@@ -105,21 +93,10 @@ li:before {
   color: #bbb;
 }
 output:before {
-  content: ' // return ' attr(class) ': ';
+  content: '// return ';
 }
 output {
   color: green;
-}
-*:before,
-*:after {
-  cursor: default;
-}
-u:before {
-  color: gray;
-}
-q {
-  quotes: '"' '"';
-  word-wrap: break-word;
 }
 section {
 margin: 2rem;
@@ -133,10 +110,6 @@ h2 {
   z-index:99;
 }
 </style>
-
-<header>
-<h1><?=PHP_SAPI,' ',PHP_VERSION?></h1>
-</header>
 
 <?php
 
@@ -167,12 +140,13 @@ function xxx($arr){ // {{{
         echo '<a href=//php.net/',str_replace('_','-',$k),"><dfn>$k</dfn></a>";
         echo ' ( <span class=args>';
         foreach($v->getParameters() as $key=>$arg){
-          $t = $arg->getType();
+          $c = [','][!$key];
           $n = ['&'][!$key].'$'.$arg->getName();
-          if($key) echo ', ';
-          if($t) echo "<a href=//php.net/$t class=type>$t</a> ";
-          echo $arg->isOptional()?"<dfn class=optional>$n":"<strong class=required>$n</strong>";
+          $t = $arg->getType();
+          if($t) $t = "<a href=//php.net/$t class=type>$t</a> ";
+          echo $arg->isOptional()?"<span class=optional> [$c <dfn>$t</dfn> <var>$n</var> ":"<strong class=required>$c <dfn>$t</dfn> <var>$n</var></strong>";
         }
+        echo str_repeat(']</span>',$v->getNumberOfParameters()-$v->getNumberOfRequiredParameters());
         echo '</span> )';
 
         if($v->isDeprecated()) echo ' <strong>DEPRECATED</strong>';
@@ -221,7 +195,7 @@ function xxx($arr){ // {{{
           $tmp1 = $k();
           $tmp2 = gettype($tmp1);
 
-          echo is_string($tmp1)?"<output>\"$tmp1\"</output>":"<output>$tmp1</output>";
+          echo ' ',is_string($tmp1)?"<output>\"$tmp1\"</output>":"<output>$tmp1</output>";
         }
         break;
       case 'ReflectionClass':
@@ -231,7 +205,7 @@ function xxx($arr){ // {{{
 
         $p = $v->getParentClass();
         if($p){
-          echo " <span class=syn>extends</span> <a href=//php.net/class.{$p->name}>{$p->name}</a></a>";
+          echo " <span class=syn>extends</span> <a href=//php.net/class.{$p->name}>{$p->name}</a>";
         }
 
         $i = $v->getInterfaceNames();
@@ -252,6 +226,11 @@ function xxx($arr){ // {{{
   }
 } // }}}
 ?>
+
+
+<header>
+<h1><?=PHP_SAPI,' ',PHP_VERSION?></h1>
+</header>
 
 <main>
 
