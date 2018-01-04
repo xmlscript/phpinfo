@@ -1,6 +1,10 @@
 {
     "name": "xmlscript/phpinfo",
     "description": "show PHP classes, functions",
+    "keywords": [
+      "phpinfo",
+      "reflection"
+    ],
     "type": "project",
     "license": "MIT",
     "authors": [
@@ -9,5 +13,7 @@
             "email": "xmlscript@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+      "ext-reflection": "*"
+    }
 }
