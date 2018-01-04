@@ -1,0 +1,13 @@
+{
+    "name": "xmlscript/phpinfo",
+    "description": "show PHP classes, functions",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "xmlscript",
+            "email": "xmlscript@gmail.com"
+        }
+    ],
+    "require": {}
+}
