@@ -13,7 +13,6 @@
             "email": "xmlscript@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
       "ext-reflection": "*"
     }
