@@ -47,7 +47,7 @@ function xxx($arr){ // {{{
         //FIXME: How to open local file
         if($f) echo " <a href=file://$f>$f</a> ", $v->getStartLine();
 
-        if($v->isDeprecated()) echo ' <strong>DEPRECATED</strong>';
+        if($v->isDeprecated()) echo ' 🚫 <strong>DEPRECATED</strong>';
 
 
         if(in_array($v->name,[
@@ -98,8 +98,45 @@ function xxx($arr){ // {{{
 
         }
         break;
+      case 'ReflectionProperty':
+        echo '<li>';
+        echo '<span class=syn>',join(Reflection::getModifierNames($v->getModifiers()),' '), ' ','</span> ';
+        echo '<var class=prop>$',$v->name,'</var> ;';
+        break;
+      case 'ReflectionMethod':
+        echo '<li>';
+        echo '<span class=syn>',join(Reflection::getModifierNames($v->getModifiers()),' '), ' ','</span> function ';
+        echo '<a href=//php.net/',str_replace('\\','-',$v->class),'.',$v->name,"><dfn>{$v->name}</dfn></a>";
+        echo ' ( <span class=args>';
+        foreach($v->getParameters() as $key=>$arg){
+          $c = [',',null][!$key];
+          $n = ['&',null][!$key].'$'.$arg->getName();
+          $t = $arg->getType();
+          if($t) $t = "<a href=//php.net/$t class=type>$t</a> ";
+          echo $arg->isOptional()?"<span class=optional> [$c <dfn>$t</dfn> <var>$n</var> ":"<strong class=required>$c <dfn>$t</dfn> <var>$n</var></strong>";
+        }
+        echo str_repeat(']</span>',$v->getNumberOfParameters()-$v->getNumberOfRequiredParameters());
+        echo '</span> )';
+
+        $r = $v->getReturnType();
+        if($r) echo " :<span class=syn>$r</span>";
+        echo ' <small>{ ... }</small>';
+        $f = $v->getFileName();
+        //FIXME: How to open local file
+        if($f) echo " <a href=file://$f>$f</a> ", $v->getStartLine();
+
+        if($v->isDeprecated()) echo ' <strong>DEPRECATED</strong>';
+
+        break;
       case 'ReflectionClass':
-        echo "<li class=$t>";
+        $methods=$v->getMethods();
+        $const = $v->getConstants();
+        $prop = $v->getProperties();
+        $count = count($methods)+count($const)+count($prop);
+        if($count)
+        echo "<li class=$t><details><summary>";
+        else
+        echo "<li class=\"$t nodetails\">";
         echo '<span class=syn>',join(Reflection::getModifierNames($v->getModifiers()),' '), ' ',$v->isInterface()?'interface':($v->isTrait()?'trait':'class'),'</span> ';
         echo '<a href=//php.net/class.',str_replace('\\','_',$v->name),"><dfn>{$v->name}</dfn></a>";
 
@@ -113,7 +150,20 @@ function xxx($arr){ // {{{
           echo ' <span class=syn>implements</span> ';
           echo join(array_map(function($v){return '<a href=//php.net/class.'.str_replace('\\','_',$v).'>'.$v.'</a>';}, $i),', ');
         }
-        echo ' <small>{ ... }</small>';
+        echo ' <small>{ '.str_repeat('.',max(min(count($methods),32),1)).' }</small>';
+        if($count){
+          echo '</summary>';
+          $n=10;
+          if($const){
+            if(count($const)>$n)
+            echo '<ol class=const>',xxx(array_slice($const,0,$n)),'<details><summary>MORE ',count($const)-$n,' ...</summary>',xxx(array_slice($const,$n)),'</details>','</ol>';
+            else
+            echo '<ol class=const>',xxx($const),'</ol>';
+          }
+          if($prop) echo '<ul>',xxx($prop),'</ul>';
+          if($methods) echo '<ol>',xxx($methods),'</ol>';
+          echo '</details>';
+        }
         break;
       default:
         echo "<li class=$t><dfn>{$v->name}</dfn>{} $cls</li>";
@@ -190,10 +240,32 @@ dfn {
   font-weight: normal;
 }
 
+.nodetails{
+  text-indent: 26px;
+}
+
+details ul,
+details ol{
+  margin: .5em .2em;
+}
+
+details ol{
+  border-left: solid 3px #aae;
+}
+
+details ul{
+  border-left: solid 3px #aea;
+}
+
+details ul.const{
+  border-left: solid 3px #aea;
+}
+
 .boolean,
 .null {
   color: red;
 }
+.prop,
 .string {
   color: blue;
 }
@@ -206,6 +278,7 @@ dfn {
   color: #793862;
 }
 
+ul.const li:before,
 ol.const li:before {
   content: 'const ';
 }
@@ -221,7 +294,7 @@ li:before {
   color: #bbb;
 }
 output:before {
-  content: '// return ';
+  content: '//🎉 return ';
 }
 output {
   color: green;
