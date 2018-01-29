@@ -137,26 +137,26 @@ function xxx($arr){ // {{{
         echo "<li class=$t><details><summary>";
         else
         echo "<li class=\"$t nodetails\">";
-        echo '<span class=syn>',join(Reflection::getModifierNames($v->getModifiers()),' '), ' ',$v->isInterface()?'interface':($v->isTrait()?'trait':'class'),'</span> ';
+
+        echo '<span class=syn>', join(Reflection::getModifierNames($v->getModifiers()),' '), $v->isInterface()?'interface':($v->isTrait()?'trait':'class'),'</span> ';
+
         echo '<a href=//php.net/class.',str_replace('\\','_',$v->name),"><dfn>{$v->name}</dfn></a>";
 
-        $p = $v->getParentClass();
-        if($p){
+        if($p = $v->getParentClass())
           echo ' <span class=syn>extends</span> <a href=//php.net/class.',str_replace('\\','_',$p->name),'>',$p->name,'</a>';
-        }
 
-        $i = $v->getInterfaceNames();
-        if($i){
+        if($i = $v->getInterfaceNames()){
           echo ' <span class=syn>implements</span> ';
           echo join(array_map(function($v){return '<a href=//php.net/class.'.str_replace('\\','_',$v).'>'.$v.'</a>';}, $i),', ');
         }
-        echo ' <small>{ '.str_repeat('.',max(min(count($methods),32),1)).' }</small>';
+
+        echo ' <small>{ ',str_repeat('.',max(min(count($methods),32),1)),' }</small>';
         if($count){
           echo '</summary>';
-          $n=10;
+          $more=10;
           if($const){
-            if(count($const)>$n)
-            echo '<ol class=const>',xxx(array_slice($const,0,$n)),'<details><summary>MORE ',count($const)-$n,' ...</summary>',xxx(array_slice($const,$n)),'</details>','</ol>';
+            if(count($const)>$more)
+            echo '<ol class=const>',xxx(array_slice($const,0,$more)),'<details><summary>MORE ',count($const)-$more,' ...</summary>',xxx(array_slice($const,$more)),'</details>','</ol>';
             else
             echo '<ol class=const>',xxx($const),'</ol>';
           }
@@ -241,7 +241,7 @@ dfn {
 }
 
 .nodetails{
-  text-indent: 26px;
+  text-indent: 18px;
 }
 
 details ul,
