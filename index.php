@@ -21,7 +21,10 @@ function xxx($arr){ // {{{
       break;
     case 'string':
       $v=str_replace(["\r","\n"],['\r','\n'],$v);
-      echo "<li><dfn>$k</dfn> = \"<var class=$t>$v</var>\"</li>";
+      echo "<li><dfn>$k</dfn> = \"<var class=$t>$v</var>\"";
+      if(strpos($v,'#')===0&&preg_match('/^#[[:xdigit:]]{6}$/i',$v)) echo "<input type=color value=$v disabled>";
+      if(is_file($v))
+      echo ' <mark>',round(($byte=filesize($v))/pow(1024,($i=floor(log($byte,1024)))),2),@['byte','kb','mb','gb','tb'][$i],'</mark>';
       break;
     case 'object':
       $cls = get_class($v);
@@ -262,7 +265,7 @@ details ul.const{
 }
 
 .boolean,
-.null {
+.NULL {
   color: red;
 }
 .prop,
@@ -272,6 +275,14 @@ details ul.const{
 .integer,
 .double {
   color: red;
+}
+.integer::before{
+  content: '(int) ';
+  color: gray;
+}
+.double::before{
+  content: '(float) ';
+  color: gray;
 }
 
 .syn {
@@ -292,6 +303,14 @@ li:before {
 .server dfn:after {
   content: "'] ";
   color: #bbb;
+}
+input[type=color]{
+  display: inline-block;
+  margin-left: .5em;
+  padding: 0;
+  height: 1em;
+  width: 2em;
+  border:none;
 }
 output:before {
   content: '//🎉 return ';
