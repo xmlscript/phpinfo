@@ -31,7 +31,7 @@ function xxx($arr){ // {{{
       switch($cls){
       case 'ReflectionFunction':
         echo '<li>';
-        echo '<a href=//php.net/',str_replace('_','-',$v->name),"><dfn>{$v->name}</dfn></a>";
+        echo "<a href=//php.net/function.{$v->name}><dfn>{$v->name}</dfn></a>";
         echo ' ( <span class=args>';
         foreach($v->getParameters() as $key=>$arg){
           $c = [',',null][!$key];
@@ -45,7 +45,7 @@ function xxx($arr){ // {{{
 
         $r = $v->getReturnType();
         if($r) echo " :<span class=syn>$r</span>";
-        echo ' <small>{ ... }</small>';
+        echo ';';
         $f = $v->getFileName();
         //FIXME: How to open local file
         if($f) echo " <a href=file://$f>$f</a> ", $v->getStartLine();
@@ -123,7 +123,7 @@ function xxx($arr){ // {{{
 
         $r = $v->getReturnType();
         if($r) echo " :<span class=syn>$r</span>";
-        echo ' <small>{ ... }</small>';
+        echo ';';
         $f = $v->getFileName();
         //FIXME: How to open local file
         if($f) echo " <a href=file://$f>$f</a> ", $v->getStartLine();
@@ -141,9 +141,14 @@ function xxx($arr){ // {{{
         else
         echo "<li class=\"$t nodetails\">";
 
-        echo '<span class=syn>', join(Reflection::getModifierNames($v->getModifiers()),' '), $v->isInterface()?'interface':($v->isTrait()?'trait':'class'),'</span> ';
+        echo '<span class=syn>';
 
-        echo '<a href=//php.net/class.',str_replace('\\','_',$v->name),"><dfn>{$v->name}</dfn></a>";
+        echo $has = join(Reflection::getModifierNames($v->getModifiers()),' ');
+        if($has) echo ' ';
+
+        echo $v->isInterface()?'interface':($v->isTrait()?'trait':'class'),'</span> ';
+
+        echo '<a href=//php.net/class.',str_replace('\\','_',$v->name),'><dfn>',$v->name,'</dfn></a>';
 
         if($p = $v->getParentClass())
           echo ' <span class=syn>extends</span> <a href=//php.net/class.',str_replace('\\','_',$p->name),'>',$p->name,'</a>';
@@ -153,7 +158,7 @@ function xxx($arr){ // {{{
           echo join(array_map(function($v){return '<a href=//php.net/class.'.str_replace('\\','_',$v).'>'.$v.'</a>';}, $i),', ');
         }
 
-        echo ' <small>{ ',str_repeat('.',max(min(count($methods),32),1)),' }</small>';
+        echo ' <small>{ ',str_repeat('.',count($methods)),' }</small>';
         if($count){
           echo '</summary>';
           $more=10;
@@ -224,6 +229,9 @@ color: #ae508d;
 dfn {
   font-style: normal;
 }
+var{
+  font-style: normal;
+}
 
 .args {
   color: #aaa;
@@ -264,25 +272,21 @@ details ul.const{
   border-left: solid 3px #aea;
 }
 
-.boolean,
+.boolean {
+  color: #75507b;
+}
 .NULL {
-  color: red;
+  color: #3465a4;
 }
 .prop,
 .string {
-  color: blue;
+  color: #c00;
 }
-.integer,
+.integer {
+  color: #4e9a06;
+}
 .double {
-  color: red;
-}
-.integer::before{
-  content: '(int) ';
-  color: gray;
-}
-.double::before{
-  content: '(float) ';
-  color: gray;
+  color: #f57900;
 }
 
 .syn {
