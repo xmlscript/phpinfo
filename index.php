@@ -4,11 +4,59 @@ ini_get('output_buffering') and ob_clean();
 
 if(PHP_SAPI==='cli') die('usage: `php -S 127.0.0.1` and `lynx 127.0.0.1` or php --r[fcezi]'.PHP_EOL);
 
-function xxx($arr){ // {{{
+function xxx(array $arr){ // {{{
   foreach($arr as $k=>$v){
     $t = gettype($v);
     switch($t){
     case 'integer':
+      switch($k){
+        case 'REQUEST_TIME':
+        case 'PHP_MAJOR_VERSION':
+        case 'PHP_MINOR_VERSION':
+        case 'PHP_RELEASE_VERSION':
+        case 'PHP_VERSION_ID':
+        case 'PHP_ZTS':
+        case 'PHP_DEBUG':
+        case 'PHP_INT_MIN':
+        case 'PHP_INT_MAX':
+        case 'PHP_FLOAT_DIG':
+        case 'DEBUG_BACKTRACE_PROVIDE_OBJECT':
+        case 'DEBUG_BACKTRACE_IGNORE_ARGS':
+        case 'LIBXML_VERSION':
+        case 'OPENSSL_VERSION_NUMBER':
+        case 'PCRE_VERSION_MAJOR':
+        case 'PCRE_VERSION_MINOR':
+        case 'ZLIB_ENCODING_RAW':
+        case 'GD_MAJOR_VERSION':
+        case 'GD_MINOR_VERSION':
+        case 'INTL_MAX_LOCALE_LEN':
+        case 'SODIUM_LIBRARY_MAJOR_VERSION':
+        case 'SODIUM_LIBRARY_MINOR_VERSION':
+        case 'LIBXSLT_VERSION':
+        case 'LIBEXSLT_VERSION':
+        case 'SWOOLE_VERSION_ID':
+        case 'SWOOLE_MAJOR_VERSION':
+        case 'SWOOLE_MINOR_VERSION':
+        case 'SWOOLE_RELEASE_VERSION':
+        case 'SWOOLE_TIMER_MIN_MS':
+        case 'SWOOLE_TIMER_MAX_MS':
+        case 'SWOOLE_DEFAULT_MAX_CORO_NUM':
+        case 'SWOOLE_CORO_MAX_NUM_LIMIT':
+          echo "<li><dfn>$k</dfn> = <var class=$t>$v</var></li>";
+          break;
+        default:
+          if($v > 0){
+            $bit = [];
+            for($i=0;$i<64;$i++)
+              if($v & 2**$i)
+                $bit[] =  $i;
+            $bits = count($bit)>1?join($bit,'|'):"<span class=bit>{$bit[0]}</span>";
+            echo "<li><dfn>$k</dfn> = <var class=$t>$v</var> <small>= 2 ** $bits</small></li>";
+          }
+          else
+            echo "<li><dfn>$k</dfn> = <var class=$t>$v</var></li>";
+      }
+      break;
     case 'double':
       echo "<li><dfn>$k</dfn> = <var class=$t>$v</var></li>";
       break;
@@ -54,53 +102,118 @@ function xxx($arr){ // {{{
 
 
         if(in_array($v->name,[
-  'zend_version',
-  'time',
-  'timezone_version_get',
-  'date_default_timezone_get',
-  'mhash_count',
-  'session_name',
-  'session_module_name',
-  'session_save_path',
-  'phpversion',
-  'php_sapi_name',
-  'php_uname',
-  'php_ini_scanned_files',
-  'php_ini_loaded_file',
-  'rand',
-  'getrandmax',
-  'mt_getrandmax',
-  'getmyuid',
-  'getmygid',
-  'getmypid',
-  'getmyinode',
-  'getlastmod',
-  'pi',
-  'microtime',
-  'uniqid',
-  'get_current_user',
-  'memory_get_usage',
-  'memory_get_peak_usage',
-  'get_include_path',
-  'gethostname',
-  'umask',
-  'getcwd',
-  'realpath_cache_size',
-  'lcg_value',
-  'sys_get_temp_dir',
-  'easter_date',
-  'easter_days',
-  'unixtojd',
-  'imagetypes',
-  'json_last_error_msg',
-])){
-          $tmp1 = ($v->name)();
-          $tmp2 = gettype($tmp1);
+          'zend_version',
+          'func_num_args',
+          'gc_mem_caches',
+          'gc_collect_cycles',
+          'gc_enabled',
+          'gc_status',
+          'time',
+          'timezone_version_get',
+          'date_default_timezone_get',
+          'mhash_count',
+          'session_name',
+          'session_module_name',
+          'session_save_path',
+          'phpversion',
+          'php_sapi_name',
+          'php_uname',
+          'php_ini_scanned_files',
+          'php_ini_loaded_file',
+          'rand',
+          'getrandmax',
+          'mt_getrandmax',
+          'getmyuid',
+          'getmygid',
+          'getmypid',
+          'getmyinode',
+          'getlastmod',
+          'pi',
+          'microtime',
+          'uniqid',
+          'get_current_user',
+          'memory_get_usage',
+          'memory_get_peak_usage',
+          'get_include_path',
+          'gethostname',
+          'umask',
+          'getcwd',
+          'realpath_cache_size',
+          'lcg_value',
+          'sys_get_temp_dir',
+          'easter_date',
+          'easter_days',
+          'unixtojd',
+          'imagetypes',
+          'json_last_error_msg',
+          'get_defined_vars',
+          'get_loaded_extensions',
+          'timezone_abbreviations_list',
+          'openssl_get_cert_locations',
+          'openssl_get_curve_names',
+          'zlib_get_coding_type',
+          'filter_list',
+          'hash_algos',
+          'hash_hmac_algos',
+          'spl_classes',
+          'session_get_cookie_params',
+          'session_status',
+          'localeconv',
+          'get_included_files',
+          'get_required_files',
+          'get_class',
+          'get_called_class',
+          'get_parent_class',
+          'get_declared_classes',
+          'get_declared_traits',
+          'get_declared_interfaces',
+          'get_defined_functions',
+          'get_resources',
+          'get_defined_constants',
+          'debug_backtrace',
+          'func_get_args',
+          'error_reporting',
+          'mktime',
+          'gmmktime',
+          'localtime',
+          'getdate',
+          'date_create',
+          'date_create_immutable',
+          'timezone_identifiers_list',
+          'openssl_pkey_new',
+          'openssl_get_md_methods',
+          'openssl_get_cipher_methods',
+          'openssl_error_string',
+          'spl_autoload_extensions',
+          'spl_autoload_register',
+          'spl_autoload_functions',
+          'session_id',
+          'session_create_id',
+          'session_regenerate_id',
+          'session_cache_limiter',
+          'session_cache_expire',
+          'get_html_translation_table',
+          'srand',
+          'mt_rand',
+          'mt_srand',
+          'getenv',
+          'gettimeofday',
+          'getrusage',
+          'ini_get_all',
+          'libxml_use_internal_errors',
+        ])){
+          $ret = ($v->name)();
+          $t = gettype($ret);
+          if($t==='array') $ret = array_slice($ret,0,100);//FIXME json_encode无法处理太大的数组
+          $str = json_encode($ret,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+          if(strlen($str)> 128) $str = substr($str,0,128).' ...';
 
-          echo ' ',is_string($tmp1)?"<output>\"$tmp1\"</output>":"<output>$tmp1</output>";
+          $obj = $t==='object'?'<small style=color:grey>('.get_class($ret).')</small> ':'';
 
+          echo "<output class=$t>$obj $str</output>";
         }
         break;
+
       case 'ReflectionProperty':
         echo '<li>';
         echo '<span class=syn>',join(Reflection::getModifierNames($v->getModifiers()),' '), ' ','</span> ';
@@ -161,10 +274,10 @@ function xxx($arr){ // {{{
         echo ' <small>{ ',str_repeat('.',count($methods)),' }</small>';
         if($count){
           echo '</summary>';
-          $more=10;
+          $more=16;
           if($const){
             if(count($const)>$more)
-            echo '<ol class=const>',xxx(array_slice($const,0,$more)),'<details><summary>MORE ',count($const)-$more,' ...</summary>',xxx(array_slice($const,$more)),'</details>','</ol>';
+            echo '<ol class=const>',xxx(array_slice($const,0,$more)),'<details<summary>MORE ',count($const)-$more,' ...</summary>',xxx(array_slice($const,$more)),'</details>','</ol>';
             else
             echo '<ol class=const>',xxx($const),'</ol>';
           }
@@ -288,6 +401,15 @@ details ul.const{
 .double {
   color: #f57900;
 }
+.array,.object {
+  color: darkred;
+}
+output.resource:before {
+  content: ' === (resource)';
+}
+output.array:before {
+  content: ' === (arr)';
+}
 
 .syn {
   color: #793862;
@@ -317,7 +439,8 @@ input[type=color]{
   border:none;
 }
 output:before {
-  content: '//🎉 return ';
+  color: grey;
+  content: ' === ';
 }
 output {
   color: green;
@@ -332,6 +455,9 @@ h2 {
   padding: 0 2rem;
   background-color: #8892bf;
   z-index:99;
+}
+.bit {
+  background-color: yellow;
 }
 </style>
 
